@@ -8,7 +8,7 @@ def start(update: Update, context: CallbackContext) ->None:
     )
 
 def help_command(update: Update, context: CallbackContext) ->None:
-    update.message.reply_text('I can`t help you.'),
+    update.message.reply_text('I can`t help you.')
 
 def about(update: Update, context: CallbackContext) ->None:
-    update.message.reply_text('This bot is made for doing things. '),
+    update.message.reply_text('This bot is made for doing things. ')
