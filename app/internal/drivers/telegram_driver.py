@@ -15,3 +15,12 @@ class TelegramBotAPI:
     @classmethod
     def get_updater(cls) -> Updater:
         return cls.__updater
+
+    @classmethod
+    def _set_webhook(cls, ssl_cert_path: str) -> bool:
+        for _ in range(3):
+            cls.__updater.bot.set_webhook(
+                url=f'',
+                certificate=open(ssl_cert_path, 'rb')
+            )
+
