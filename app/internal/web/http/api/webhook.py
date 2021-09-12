@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
 from app.conf.server import CHANNEL_ID
-from app.external.entities.exception_response import ExceptionResponse
 from app.internal.logic.entities.events.push import PushRequestModel
 from app.internal.logic.services.push import PushRequestService
 

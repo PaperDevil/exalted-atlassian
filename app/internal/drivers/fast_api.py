@@ -3,11 +3,16 @@ import sys
 from loguru import logger
 from fastapi import FastAPI, Request
 
+from app.conf.db import (
+    DB_HOST, DB_PASSWORD,
+    DB_PORT, DB_USER, DB_NAME
+)
 from app.conf.server import (
     DEBUG, TITLE_API,
     DESCRIPTION_API, VERSION_API,
     TELEGRAM_TOKEN
 )
+from app.internal.drivers.async_pg import AsyncPg
 from app.internal.drivers.telegram_driver import TelegramBotAPI
 
 from app.internal.web.http.api.general import general_router
@@ -34,11 +39,17 @@ class FastAPIServer:
         @app.post('/')
         async def response_telegram(request: Request):
             payload = await request.json()
-            TelegramBotAPI.update(payload)
+            await TelegramBotAPI.update(payload)
             return payload
 
         @app.on_event('startup')
-        async def init_telegram_api():
-            TelegramBotAPI.init_bot_api(TELEGRAM_TOKEN, handlers=general_handler)
+        async def init_dependencies():
+            await TelegramBotAPI.init_bot_api(TELEGRAM_TOKEN, general_handler)
+            await AsyncPg.init_db(DB_HOST, DB_USER, DB_PASSWORD, DB_PORT, DB_NAME)
+
+        @app.on_event('shutdown')
+        async def close_dependencies():
+            await AsyncPg.close_pool_db()
+            await TelegramBotAPI.close_bot_api()
 
         return app

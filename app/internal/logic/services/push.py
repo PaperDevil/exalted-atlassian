@@ -1,5 +1,3 @@
-from telegram import ParseMode
-
 from app.internal.logic.entities.common.push import BitbucketPushRequest
 from app.internal.logic.services.base import BaseService
 
@@ -16,6 +14,7 @@ class PushRequestService(BaseService):
             f"Commits:\n" + "".join(commits)
         )
 
-        self.tg.bot.send_message(
+        await self.tg.send_message(
             text=text,
-            chat_id=chat_id, parse_mode=ParseMode.MARKDOWN)
+            chat_id=chat_id, parse_mode='Markdown'
+        )

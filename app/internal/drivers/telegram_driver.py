@@ -1,46 +1,46 @@
 import time
 from typing import Optional
 
-from telegram.error import RetryAfter
-from telegram.ext import Updater, Dispatcher, Handler
-from telegram import Update
+from aiogram import Bot, Dispatcher
+from aiogram import types
 
 from app.conf.server import HTTPS_HOST_ADDRESS
 
 
 class TelegramBotAPI:
-    __updater: Optional[Updater] = None
+    __bot: Optional[Bot] = None
     __dispatcher: Optional[Dispatcher] = None
 
     @classmethod
-    def init_bot_api(cls, token: str, handlers: list[Handler]) -> None:
-        cls.__updater = Updater(token, use_context=True, workers=1)
-        cls.__dispatcher = cls.__updater.dispatcher
+    async def init_bot_api(cls, token: str, handlers: list) -> None:
+        cls.__bot = Bot(token)
+        cls.__dispatcher = Dispatcher(cls.__bot)
         for handler in handlers:
-            cls.include_handler(handler)
-        cls._set_webhook()
+            cls.include_handler(handler['callback'], handler['commands'])
+        await cls._set_webhook()
 
     @classmethod
-    def get_updater(cls) -> Updater:
-        return cls.__updater
+    async def close_bot_api(cls):
+        await cls.__bot.delete_webhook()
 
     @classmethod
-    def update(cls, data: dict):
-        cls.__dispatcher.process_update(
-            update=Update.de_json(data, cls.__updater.bot)
+    def get_dispatcher(cls) -> Dispatcher:
+        return cls.__dispatcher
+
+    @classmethod
+    def get_bot(cls) -> Bot:
+        return cls.__bot
+
+    @classmethod
+    def include_handler(cls, callback: callable, commands):
+        cls.__dispatcher.register_message_handler(callback, commands=commands)
+
+    @classmethod
+    async def update(cls, data: dict):
+        await cls.__dispatcher.process_update(
+            update=types.Update(**data)
         )
 
     @classmethod
-    def include_handler(cls, handler: Handler) -> None:
-        cls.__dispatcher.add_handler(handler)
-
-    @classmethod
-    def _set_webhook(cls) -> None:
-        for _ in range(3):
-            try:
-                cls.__updater.bot.set_webhook(
-                    url=HTTPS_HOST_ADDRESS
-                )
-                break
-            except RetryAfter:
-                time.sleep(3)
+    async def _set_webhook(cls) -> None:
+        await cls.__bot.set_webhook(HTTPS_HOST_ADDRESS)

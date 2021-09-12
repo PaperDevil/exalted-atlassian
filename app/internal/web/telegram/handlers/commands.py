@@ -1,17 +1,15 @@
-from telegram import Update
-from telegram.ext import CallbackContext
+from aiogram import types, Bot
+
+from app.internal.logic.entities.db.user import User
+from app.internal.logic.services.user import UserService
+from app.internal.drivers.telegram_driver import TelegramBotAPI
 
 
-def start(update: Update, _: CallbackContext) -> None:
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        f'Hi {user.mention_markdown_v2()}\!',
-    )
+async def start(event: types.Message) -> None:
+    user: User = await UserService.create_user(str(event.from_user.id))
+    Bot.set_current(TelegramBotAPI.get_bot())
+    await event.reply(f'yours user_id is {user.id}')
 
 
-def help_command(update: Update, _: CallbackContext) -> None:
-    update.message.reply_text('I can`t help you.')
-
-
-def about(update: Update, _: CallbackContext) -> None:
-    update.message.reply_text('This bot is made for doing things. ')
+async def about(event: types.Message) -> None:
+    await event.reply('This bot is made for doing things. ')
