@@ -1,7 +1,7 @@
 import sys
 
 from loguru import logger
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from app.conf.server import (
     DEBUG, TITLE_API,
@@ -9,7 +9,9 @@ from app.conf.server import (
     TELEGRAM_TOKEN
 )
 from app.internal.drivers.telegram_driver import TelegramBotAPI
+
 from app.internal.web.http.api.general import general_router
+from app.internal.web.telegram.handlers.general import general_handler
 
 
 class FastAPIServer:
@@ -29,8 +31,14 @@ class FastAPIServer:
 
         app.include_router(general_router)
 
+        @app.post('/')
+        async def response_telegram(request: Request):
+            payload = await request.json()
+            TelegramBotAPI.update(payload)
+            return payload
+
         @app.on_event('startup')
         async def init_telegram_api():
-            TelegramBotAPI.init_bot_api(TELEGRAM_TOKEN)
+            TelegramBotAPI.init_bot_api(TELEGRAM_TOKEN, handlers=general_handler)
 
         return app
