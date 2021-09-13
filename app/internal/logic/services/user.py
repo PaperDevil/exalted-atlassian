@@ -24,6 +24,11 @@ class UserService(BaseService):
         return user
 
     @staticmethod
+    async def get_user_by_telegram_id(telegram_id: int) -> Optional[User]:
+        user: User = await UserDao().get_by_telegram_id(str(telegram_id))
+        return user
+
+    @staticmethod
     async def auth_bitbucket(user_id: int, state: str, code: str) -> None:
         access_token = await BitbucketOAuth2Service.get_access_token(state, code)
         user_cache = await CacheDriver.get(user_id)

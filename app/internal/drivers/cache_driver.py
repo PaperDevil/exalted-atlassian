@@ -35,3 +35,7 @@ class CacheDriver:
         data: Union[list, dict] = await CacheDriver.get(key)
         data[field] = val
         await CacheDriver.set(key, data)
+
+    @classmethod
+    def exist(cls, key: Union[int, str]) -> bool:
+        return key in cls.__value
