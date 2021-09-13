@@ -33,6 +33,12 @@ class UserDao(BaseDao):
         user.id = user_id
         return user
 
+    async def get_by_id(self, id: int) -> Optional[User]:
+        query = select(self.default_rows).select_from(user_table).where(
+            user_table.c.id == id
+        )
+        return await self.get_object_by_field(query)
+
     async def get_by_telegram_id(self, telegram_id: str) -> Optional[User]:
         query = select(self.default_rows).select_from(user_table).where(
             user_table.c.telegram_id == telegram_id

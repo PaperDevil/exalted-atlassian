@@ -37,6 +37,7 @@ class TelegramBotAPI:
 
     @classmethod
     async def update(cls, data: dict):
+        Bot.set_current(cls.get_bot())
         await cls.__dispatcher.process_update(
             update=types.Update(**data)
         )
