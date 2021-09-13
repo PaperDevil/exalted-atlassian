@@ -20,6 +20,6 @@ async def bitbucket_auth(
     await bot.send_message(
         chat_id=user.telegram_id,
         text="You now have access to the bot functionality!",
-        reply_markup=MenuKeyboardMarkup.get_markup()
+        reply_markup=MenuKeyboardMarkup().get_markup()
     )
     return RedirectResponse(TELEGRAM_BOT_ADDRESS + "?start=text")

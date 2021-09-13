@@ -4,9 +4,8 @@ from aiogram.types import InlineKeyboardMarkup
 class BaseMarkup:
     keyboard: list = []
 
-    @classmethod
-    def get_markup(cls) -> InlineKeyboardMarkup:
+    def get_markup(self) -> InlineKeyboardMarkup:
         keyboard: InlineKeyboardMarkup = InlineKeyboardMarkup()
-        for button in cls.keyboard:
+        for button in self.keyboard:
             keyboard.add(button)
         return keyboard

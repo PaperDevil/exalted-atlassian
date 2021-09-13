@@ -7,7 +7,7 @@ from app.internal.logic.entities.common.links import BitbucketLinks
 
 
 class BitbucketRepository(AbstractRequestModel):
-    uuid: Optional[str] = Field(...)
-    full_name: Optional[str] = Field(...)
-    website: Optional[str] = Field(...)
+    uuid: Optional[str] = Field(None)
+    full_name: Optional[str] = Field(None)
+    website: Optional[str] = Field(None)
     links: BitbucketLinks

@@ -12,12 +12,14 @@ class TelegramBotAPI:
     __dispatcher: Optional[Dispatcher] = None
 
     @classmethod
-    async def init_bot_api(cls, token: str, handlers: list) -> None:
+    async def init_bot_api(cls, token: str, handlers: dict) -> None:
         cls.__bot = Bot(token)
         cls.__dispatcher = Dispatcher(cls.__bot)
-        for handler in handlers:
-            cls.include_handler(handler['callback'], handler['commands'])
+        cls.include_handlers(handlers)
+        await cls.__bot.delete_webhook()
+        await cls.__bot.get_updates()
         await cls._set_webhook()
+
 
     @classmethod
     async def close_bot_api(cls):
@@ -32,8 +34,22 @@ class TelegramBotAPI:
         return cls.__bot
 
     @classmethod
-    def include_handler(cls, callback: callable, commands):
-        cls.__dispatcher.register_message_handler(callback, commands=commands)
+    def include_handlers(cls, handlers: dict[str:list]):
+        for group_name, group in handlers.items():
+            if group_name == 'message':
+                for handler in group:
+                    cls.__dispatcher.register_message_handler(
+                        callback=handler.get('callback'),
+                        commands=handler.get('commands')
+                    )
+            elif group_name == 'callback':
+                for handler in group:
+                    cls.__dispatcher.register_callback_query_handler(
+                        callback=handler.get('callback'),
+                        text=handler.get('text')
+                    )
+            else:
+                raise TypeError(f"Type of handler not supported! {group}")
 
     @classmethod
     async def update(cls, data: dict):
@@ -44,4 +60,4 @@ class TelegramBotAPI:
 
     @classmethod
     async def _set_webhook(cls) -> None:
-        await cls.__bot.set_webhook(HTTPS_HOST_ADDRESS)
+        await cls.__bot.set_webhook(HTTPS_HOST_ADDRESS, drop_pending_updates=True)

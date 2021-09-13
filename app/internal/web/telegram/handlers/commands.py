@@ -5,7 +5,7 @@ from app.external.logic.services import BitbucketOAuth2Service
 from app.internal.drivers.cache_driver import CacheDriver
 from app.internal.logic.entities.db.user import User
 from app.internal.logic.services.user import UserService
-from app.internal.web.telegram.markups.menu import MenuKeyboardMarkup
+from app.internal.web.telegram.handlers.callback import get_menu
 
 
 async def start(event: types.Message) -> types.Message:
@@ -13,10 +13,7 @@ async def start(event: types.Message) -> types.Message:
     if user and CacheDriver.exist(user.id):
         access_token = await CacheDriver.get_field(user.id, 'access_token')
         if access_token:
-            return await event.answer(
-                text=f"You now have access to the bot functionality!",
-                reply_markup=MenuKeyboardMarkup.get_markup()
-            )
+            return await get_menu(event)
     await register(event)
 
 
