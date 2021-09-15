@@ -22,4 +22,4 @@ async def bitbucket_auth(
         text="You now have access to the bot functionality!",
         reply_markup=MenuKeyboardMarkup().get_markup()
     )
-    return RedirectResponse(TELEGRAM_BOT_ADDRESS + "?start=text")
+    return RedirectResponse(TELEGRAM_BOT_ADDRESS)

@@ -1,11 +1,12 @@
 from aiogram import types
 import aiogram.utils.markdown as fmt
 
+from app.conf.server import HTTPS_HOST_ADDRESS
 from app.external.drivers.bitbucket import BitbucketDriver
 from app.internal.drivers.cache_driver import CacheDriver
 from app.internal.logic.entities.common.repository import BitbucketRepository
 from app.internal.logic.services.user import UserService
-from app.internal.web.telegram.markups.repos import ReposKeyboard, RepoDetailKeyboard
+from app.internal.web.telegram.markups.repos import ReposKeyboard, RepoDetailKeyboard, RepoWebhookKeyboard
 from app.internal.web.telegram.states.base import BaseStates
 
 
@@ -13,7 +14,8 @@ class ReposStates(BaseStates):
     def __init__(self):
         self.handlers = {
             '-': self.get_repos,
-            'detail': self.detail
+            'detail': self.detail,
+            'wh': self.wh
         }
 
     @staticmethod
@@ -43,6 +45,21 @@ class ReposStates(BaseStates):
                 fmt.text(f"**{repo.full_name}**"),
                 fmt.text("This is your repository page! From here, you can perform the most basic steps."),
                 sep='\n\n'
-            )
+            ), parse_mode='Markdown'
+        )
+        await event.message.edit_reply_markup(reply_markup=keyboard)
+
+    @staticmethod
+    async def wh(event: types.CallbackQuery, vars: dict):
+        """https://bitbucket.org/bowgroup/sv_telemed_back/admin/webhooks"""
+        name: str = vars.get('name')
+        user = await UserService.get_user_by_telegram_id(event.from_user.id)
+        keyboard = RepoWebhookKeyboard(name).get_markup()
+        await event.message.edit_text(
+            text=fmt.text(
+                fmt.text("Setup this URL in your repository webhooks:"),
+                fmt.code(f"{HTTPS_HOST_ADDRESS}/v1/webhook/{user.id}"),
+                sep='\n\n'
+            ), parse_mode='Markdown'
         )
         await event.message.edit_reply_markup(reply_markup=keyboard)

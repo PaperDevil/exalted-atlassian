@@ -21,8 +21,19 @@ class RepoDetailKeyboard(BaseMarkup):
             text="Site 🌐", url=repo.website,
         ))
         self.keyboard.append(InlineKeyboardButton(
-            text="Set Webhook 💡", callback_data="repos:wh?"
+            text="Set Webhook 💡", callback_data=f"repos:wh?name={repo.full_name}"
         ))
         self.keyboard.append(InlineKeyboardButton(
             text="Settings 🔧", callback_data="repos:wh?"
+        ))
+
+
+class RepoWebhookKeyboard(BaseMarkup):
+    def __init__(self, full_name: str):
+        self.keyboard = []
+        self.keyboard.append(InlineKeyboardButton(
+            text="Site 🌐", url=f"https://bitbucket.org/{full_name}/admin/webhooks",
+        ))
+        self.keyboard.append(InlineKeyboardButton(
+            text="Close ❌", callback_data="repos?",
         ))
