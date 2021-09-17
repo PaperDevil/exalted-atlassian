@@ -5,6 +5,7 @@ from app.internal.logic.entities.common.links import BitbucketLinks
 from app.internal.logic.entities.common.push import BitbucketPushRequest, BitbucketCommit
 from app.internal.logic.entities.common.repository import BitbucketRepository
 from app.internal.logic.entities.common.user import BitbucketUser
+from app.internal.logic.entities.common.workspace import BitbucketWorkspace
 
 
 class PushRequestModel(AbstractRequestModel):
@@ -13,6 +14,7 @@ class PushRequestModel(AbstractRequestModel):
     push: dict = Field(...)
 
     def to_model(self) -> BitbucketPushRequest:
+        workspace = self.repository.get('workspace')
         user_links: dict = self.actor.get('links')
         repo_links: dict = self.repository.get('links')
         branch_name: str = 'Undefined🚨'
@@ -46,6 +48,11 @@ class PushRequestModel(AbstractRequestModel):
             repository=BitbucketRepository(
                 uuid=self.repository.get('uuid'),
                 full_name=self.repository.get('full_name'),
+                workspace=BitbucketWorkspace(
+                    uuid=workspace.get('uuid'),
+                    name=workspace.get('name'),
+                    is_private=None
+                ),
                 website=self.repository.get('website'),
                 links=BitbucketLinks(
                     self=repo_links.get('self').get('href', None),

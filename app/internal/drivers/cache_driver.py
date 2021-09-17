@@ -14,6 +14,13 @@ class CacheDriver:
         return cls.__value.get(key)
 
     @classmethod
+    async def get_or_create(cls, key: Union[int, str], val: Union[list, dict]) -> Optional[Any]:
+        if key in cls.__value:
+            return cls.__value.get(key)
+        else:
+            await cls.set(key, val)
+
+    @classmethod
     async def update(cls, key: Union[int, str], val: Union[list, dict]) -> Optional[Any]:
         data: Union[list, dict] = await CacheDriver.get(key)
         if type(data) == list and type(val) == list:
