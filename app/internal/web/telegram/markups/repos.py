@@ -26,6 +26,9 @@ class RepoDetailKeyboard(BaseMarkup):
         self.keyboard.append(InlineKeyboardButton(
             text="Settings 🔧", callback_data="repos:wh?"
         ))
+        self.keyboard.append(InlineKeyboardButton(
+            text="Back 🔙", callback_data="repos?"
+        ))
 
 
 class RepoWebhookKeyboard(BaseMarkup):

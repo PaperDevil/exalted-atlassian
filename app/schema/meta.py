@@ -28,3 +28,13 @@ user_table = Table(
     Column('telegram_id', String(24), nullable=False),
     Column('email', Text, CheckConstraint('char_length(email) >= 4 AND char_length(email) <= 100'), unique=True, nullable=True)
 )
+
+settings_table = Table(
+    'settings', metadata,
+    Column('id', Integer, Sequence('user_id_seq', start=1), primary_key=True),
+    Column('created_at', DateTime, nullable=False, default=datetime.now),
+    Column('edited_at', DateTime, nullable=False, default=datetime.now, onupdate=datetime.now),
+    Column('notifications', Boolean, default=True),
+    # Relations
+    Column('user_id', Integer, ForeignKey('user.id', ondelete='CASCADE'))
+)

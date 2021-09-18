@@ -5,6 +5,7 @@ from app.internal.drivers.cache_driver import CacheDriver
 from app.internal.logic.dao.user import UserDao
 from app.internal.logic.entities.db.user import User
 from app.internal.logic.services.base import BaseService
+from app.internal.logic.services.settings import SettingsService
 
 
 class UserService(BaseService):
@@ -15,6 +16,7 @@ class UserService(BaseService):
             user = exist_user
         else:
             user: Optional[User] = await UserDao().add(User(telegram_id=telegram_id))
+            await SettingsService.create_user_default(user.id)
 
         return user
 
