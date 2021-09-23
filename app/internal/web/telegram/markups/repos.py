@@ -24,7 +24,7 @@ class RepoDetailKeyboard(BaseMarkup):
             text="Set Webhook 💡", callback_data=f"repos:wh?id={repo.uuid}"
         ))
         self.keyboard.append(InlineKeyboardButton(
-            text="Settings 🔧", callback_data="repos:wh?"
+            text="Settings 🔧", callback_data=f"repos:settings?id={repo.uuid}"
         ))
         self.keyboard.append(InlineKeyboardButton(
             text="Back 🔙", callback_data="repos?"
@@ -50,4 +50,15 @@ class RepoJustCloseKeyboard(BaseMarkup):
         self.keyboard = []
         self.keyboard.append(InlineKeyboardButton(
             text="Close ❌", callback_data="repos?"
+        ))
+
+
+class RepoSettingsKeyboard(BaseMarkup):
+    def __init__(self, repo: BitbucketRepository):
+        self.keyboard = []
+        self.keyboard.append(InlineKeyboardButton(
+            text="Branches", callback_data=f"repos:branches?id={repo.uuid}"
+        ))
+        self.keyboard.append(InlineKeyboardButton(
+            text="Close ❌", callback_data=f"repos:settings?id={repo.uuid}"
         ))

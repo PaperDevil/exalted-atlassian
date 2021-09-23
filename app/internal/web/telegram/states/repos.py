@@ -6,7 +6,7 @@ from app.external.drivers.bitbucket import BitbucketDriver
 from app.internal.logic.entities.common.repository import BitbucketRepository
 from app.internal.logic.entities.db.user import User
 from app.internal.web.telegram.markups.repos import ReposKeyboard, RepoDetailKeyboard, RepoWebhookKeyboard, \
-    RepoJustCloseKeyboard
+    RepoJustCloseKeyboard, RepoSettingsKeyboard
 from app.internal.web.telegram.states.base import BaseStates
 from app.internal.web.telegram.texts.errors import ERROR_CAUGHT_CASE
 
@@ -17,7 +17,8 @@ class ReposStates(BaseStates):
             '-': self.get_repos,
             'detail': self.detail,
             'wh': self.wh,
-            'swh': self.swh
+            'swh': self.swh,
+            'settings': self.settings
         }
 
     @staticmethod
@@ -92,3 +93,17 @@ class ReposStates(BaseStates):
             await event.message.edit_text(
                 text=ERROR_CAUGHT_CASE
             )
+
+    @staticmethod
+    async def settings(event: types.CallbackQuery, user: User, payload: dict):
+        uuid: str = payload.get('id')
+        repo: BitbucketRepository = await BitbucketDriver.get_repository_by_uuid(await user.access_token, uuid)
+        keyboard = RepoSettingsKeyboard(repo).get_markup()
+        await event.message.edit_text(
+            text=fmt.text("Using the settings of each repository, you can determine for which events notifications will come and select the branches from which you want to receive notifications."),
+            reply_markup=keyboard
+        )
+
+    @staticmethod
+    async def branches(event: types.CallbackQuery, user: User, payload: dict):
+        uuid: str = payload.get('id')

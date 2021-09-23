@@ -1,7 +1,12 @@
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy import Column, Table, ForeignKey, Integer, String, DateTime, Sequence, CheckConstraint, Text, Boolean
+from sqlalchemy import (
+    Column, Table, ForeignKey,
+    Integer, String, DateTime,
+    Sequence, CheckConstraint, Text,
+    Boolean, JSON
+)
 
 
 naming_convention = {
@@ -31,10 +36,21 @@ user_table = Table(
 
 settings_table = Table(
     'settings', metadata,
-    Column('id', Integer, Sequence('user_id_seq', start=1), primary_key=True),
+    Column('id', Integer, Sequence('settings_id_seq', start=1), primary_key=True),
     Column('created_at', DateTime, nullable=False, default=datetime.now),
     Column('edited_at', DateTime, nullable=False, default=datetime.now, onupdate=datetime.now),
     Column('notifications', Boolean, default=True),
+    # Relations
+    Column('user_id', Integer, ForeignKey('user.id', ondelete='CASCADE'))
+)
+
+repository_settings_table = Table(
+    Column('id', Integer, Sequence('settings_id_seq', start=1), primary_key=True),
+    Column('created_at', DateTime, nullable=False, default=datetime.now),
+    Column('edited_at', DateTime, nullable=False, default=datetime.now, onupdate=datetime.now),
+    Column('notifications', Boolean, default=True),
+    Column('repository_uuid', String(64), nullable=False),
+    Column('tracked_branches', JSON, default=['develop', 'main', 'master', 'dev']),
     # Relations
     Column('user_id', Integer, ForeignKey('user.id', ondelete='CASCADE'))
 )

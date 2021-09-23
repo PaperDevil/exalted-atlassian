@@ -12,6 +12,7 @@ from app.internal.logic.deserializers.base import BaseDeserializer
 class BaseDao:
 
     deserializer: BaseDeserializer
+    default_rows: list
 
     def __init__(self, conn: Optional[Connection] = None) -> None:
         self.pool: Pool = AsyncPg.get_pool_db()
