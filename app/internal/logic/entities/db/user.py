@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Optional
 
+from app.external.drivers.bitbucket import BitbucketDriver
 from app.internal.drivers.cache_driver import CacheDriver
+from app.internal.logic.entities.common.user import BitbucketUser
 from app.internal.logic.entities.db.base import AbstractDbModel
 
 
@@ -22,8 +24,14 @@ class User(AbstractDbModel):
         tokens = await CacheDriver.get_field(self.id, 'access_token')
         return tokens['access_token']
 
+    @property
+    async def account(self) -> BitbucketUser:
+        return await BitbucketDriver(
+            await self.access_token
+        ).get_current_user()
+
     async def get_session(self) -> Optional[dict]:
-        return await CacheDriver.get_or_create(f'session_{self.id}', {})
+        return await CacheDriver.get_or_create(f'{self.id}', {})
 
     async def update_session(self, val):
-        await CacheDriver.update(f'session_{self.id}', val)
+        await CacheDriver.update(f'{self.id}', val)

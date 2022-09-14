@@ -16,7 +16,7 @@ class SettingsStates(BaseStates):
         }
 
     @staticmethod
-    async def show_settings_menu(event: types.CallbackQuery, user: User, payload: dict):
+    async def show_settings_menu(event: types.CallbackQuery, user: User, driver, payload: dict):
         settings: Settings = await SettingsService.get_by_user_id(user.id)
         keyboard = SettingsMenuKeyboard(settings).get_markup()
         await event.message.edit_text(
@@ -25,8 +25,8 @@ class SettingsStates(BaseStates):
         )
 
     @staticmethod
-    async def notify(event: types.CallbackQuery, user: User, payload: dict):
+    async def notify(event: types.CallbackQuery, user: User, driver, payload: dict):
         settings: Settings = await SettingsService.get_by_user_id(user.id)
         settings.notifications = not settings.notifications
         await SettingsService.update(settings.id, settings)
-        await SettingsStates.show_settings_menu(event, user, payload)
+        await SettingsStates.show_settings_menu(event, user, driver, payload)

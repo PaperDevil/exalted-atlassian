@@ -45,6 +45,7 @@ settings_table = Table(
 )
 
 repository_settings_table = Table(
+    'repo_settings', metadata,
     Column('id', Integer, Sequence('settings_id_seq', start=1), primary_key=True),
     Column('created_at', DateTime, nullable=False, default=datetime.now),
     Column('edited_at', DateTime, nullable=False, default=datetime.now, onupdate=datetime.now),

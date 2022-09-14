@@ -5,7 +5,7 @@ from app.internal.web.telegram.markups.base import BaseMarkup
 
 class MenuKeyboardMarkup(BaseMarkup):
     keyboard = [
-        InlineKeyboardButton(text="My Repos 🌐", callback_data="repos?"),
+        InlineKeyboardButton(text="Starred ⭐", callback_data="repos?"),
         InlineKeyboardButton(text="Settings 🔧", callback_data="settings?"),
-        # InlineKeyboardButton(text="Workspaces 👥", callback_data="workspaces?")
+        InlineKeyboardButton(text="Workspaces 👥", callback_data="workspaces?")
     ]

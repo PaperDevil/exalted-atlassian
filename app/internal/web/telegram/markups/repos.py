@@ -10,24 +10,24 @@ class ReposKeyboard(BaseMarkup):
         for repo in repos:
             self.keyboard.append(InlineKeyboardButton(
                 text=f'{repo.full_name} 🌐',
-                callback_data=f"repos:detail?id={repo.uuid}"
+                callback_data=f"repos:detail?ws={repo.workspace.slug}&slug={repo.slug}"
             ))
+        self.keyboard.append(InlineKeyboardButton(
+            text="Menu ❌", callback_data="menu?"
+        ))
 
 
 class RepoDetailKeyboard(BaseMarkup):
     def __init__(self, repo: BitbucketRepository):
         self.keyboard = []
         self.keyboard.append(InlineKeyboardButton(
-            text="Site 🌐", url=repo.website,
+            text="Set Webhook 💡", callback_data=f"repos:wh?ws={repo.workspace.slug}&slug={repo.slug}"
         ))
         self.keyboard.append(InlineKeyboardButton(
-            text="Set Webhook 💡", callback_data=f"repos:wh?id={repo.uuid}"
+            text="Settings 🔧", callback_data=f"repos:settings?ws={repo.workspace.slug}&slug={repo.slug}"
         ))
         self.keyboard.append(InlineKeyboardButton(
-            text="Settings 🔧", callback_data=f"repos:settings?id={repo.uuid}"
-        ))
-        self.keyboard.append(InlineKeyboardButton(
-            text="Back 🔙", callback_data="repos?"
+            text="Close ❌", callback_data="repos?"
         ))
 
 

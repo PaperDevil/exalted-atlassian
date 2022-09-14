@@ -14,6 +14,7 @@ from app.conf.server import (
 )
 from app.internal.drivers.async_pg import AsyncPg
 from app.internal.drivers.telegram_driver import TelegramBotAPI
+from app.internal.drivers.cache_driver import CacheDriver
 
 from app.internal.web.http.api.general import general_router
 from app.internal.web.telegram.handlers.general import general_handler
@@ -51,5 +52,6 @@ class FastAPIServer:
         async def close_dependencies():
             await AsyncPg.close_pool_db()
             await TelegramBotAPI.close_bot_api()
+            CacheDriver.dump()
 
         return app

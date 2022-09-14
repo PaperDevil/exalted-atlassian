@@ -7,3 +7,4 @@ class BitbucketWorkspace(AbstractRequestModel):
     uuid: str = Field(None)
     is_private: bool = Field(None)
     name: str = Field(None)
+    slug: str = Field(None)

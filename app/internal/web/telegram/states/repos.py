@@ -18,12 +18,32 @@ class ReposStates(BaseStates):
             'detail': self.detail,
             'wh': self.wh,
             'swh': self.swh,
-            'settings': self.settings
+            'settings': self.settings,
+            'wsrp': self.workspace_repos
         }
 
     @staticmethod
-    async def get_repos(event: types.CallbackQuery, user: User, payload: dict):
-        repositories: list[BitbucketRepository] = await BitbucketDriver.get_repos(await user.access_token)
+    async def workspace_repos(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
+        """
+        Gets all repositories from one workspace
+        :payload:
+            { slug: str - Workspace Slug (index) }
+        """
+        repositories = await driver.get_repos_for_workspace_slug(payload.get('slug'))
+        keyboard = ReposKeyboard(repositories).get_markup()
+        await event.message.edit_text(fmt.text(
+            fmt.text("Found few repositories in this workspace."),
+            fmt.text("Using the found repositories, you can quickly generate a report based on the latest updates to the repository, or install webhooks with notifications of new pushes or crashes of one of the pipelines."),
+            sep='\n\n'
+        ))
+        await event.message.edit_reply_markup(reply_markup=keyboard)
+
+    @staticmethod
+    async def get_repos(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
+        workspace = await driver.get_account_workspace(await user.account)
+        repositories: list[BitbucketRepository] = await driver.get_repos_for_workspace(
+            workspace[0]
+        )
         keyboard = ReposKeyboard(repositories).get_markup()
         await event.message.edit_text(
             text=fmt.text(
@@ -35,9 +55,11 @@ class ReposStates(BaseStates):
         await event.message.edit_reply_markup(reply_markup=keyboard)
 
     @staticmethod
-    async def detail(event: types.CallbackQuery, user: User, payload: dict):
-        uuid: str = payload.get('id')
-        repo: BitbucketRepository = await BitbucketDriver.get_repository_by_uuid(await user.access_token, uuid)
+    async def detail(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
+        repo: BitbucketRepository = await driver.get_repository_by_slug(
+            workspace=payload.get('ws'),
+            slug=payload.get('slug')
+        )
         keyboard = RepoDetailKeyboard(repo).get_markup()
         await event.message.edit_text(
             text=fmt.text(
@@ -49,10 +71,12 @@ class ReposStates(BaseStates):
         await event.message.edit_reply_markup(reply_markup=keyboard)
 
     @staticmethod
-    async def wh(event: types.CallbackQuery, user: User, payload: dict):
+    async def wh(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
         """https://bitbucket.org/bowgroup/sv_telemed_back/admin/webhooks"""
-        uuid: str = payload.get('id')
-        repo: BitbucketRepository = await BitbucketDriver.get_repository_by_uuid(await user.access_token, uuid)
+        repo: BitbucketRepository = await driver.get_repository_by_slug(
+            workspace=payload.get('workspace'),
+            slug=payload.get('slug')
+        )
         keyboard = RepoWebhookKeyboard(repo).get_markup()
         await event.message.edit_text(
             text=fmt.text(
@@ -64,7 +88,12 @@ class ReposStates(BaseStates):
         await event.message.edit_reply_markup(reply_markup=keyboard)
 
     @staticmethod
-    async def swh(event: types.CallbackQuery, user: User, payload: dict):
+    async def swh(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
+        """
+        Set Webhook to repository
+        :payload:
+            {  }
+        """
         uuid: str = payload.get('id')
         repo: BitbucketRepository = await BitbucketDriver.get_repository_by_uuid(await user.access_token, uuid)
         success = await BitbucketDriver.repo_set_webhook(
@@ -95,7 +124,7 @@ class ReposStates(BaseStates):
             )
 
     @staticmethod
-    async def settings(event: types.CallbackQuery, user: User, payload: dict):
+    async def settings(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
         uuid: str = payload.get('id')
         repo: BitbucketRepository = await BitbucketDriver.get_repository_by_uuid(await user.access_token, uuid)
         keyboard = RepoSettingsKeyboard(repo).get_markup()
@@ -105,5 +134,5 @@ class ReposStates(BaseStates):
         )
 
     @staticmethod
-    async def branches(event: types.CallbackQuery, user: User, payload: dict):
+    async def branches(event: types.CallbackQuery, user: User, driver: BitbucketDriver, payload: dict):
         uuid: str = payload.get('id')
